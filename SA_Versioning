@@ -1,0 +1,1320 @@
+SELECT
+	cd.C_EmailAddress as email_address
+	, pref.primary_individual_identifier
+	, cd.C_State_Prov as state
+	, cd.C_Zip_Postal as zip
+	, cd.C_Client_Class_ID1 as class_id
+	, cd.C_Vision_Savings_Pass1 as vision_savings_pass_indicator
+	, cd.C_Strategic_Alliance_Code1 as strategic_alliance_code
+	, cd.C_Strategic_Business_Unit1 as sbu
+	, cd.C_Client_ID1 as client_id
+	, cd.C_Date_of_Birth1 as date_of_birth
+	, CASE
+		WHEN (cdp.next_exam_eligible_date IS NOT NULL 
+		AND cdp.client_primary_benefit_type <> 'Exam Only') 
+		THEN 'EO'
+		
+		WHEN 
+    		(MONTH(cdp.last_frame_date_of_service) = 3
+    		OR MONTH(cdp.last_frame_date_of_service) = 4
+    		OR MONTH(cdp.last_frame_date_of_service) = 5
+    		OR MONTH(cdp.last_lens_date_of_service) = 3
+    		OR MONTH(cdp.last_lens_date_of_service) = 4
+    		OR MONTH(cdp.last_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+    		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+    		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+    	AND last_claim_oon_indicator = 'Y'
+	    THEN 'OON'
+		
+		WHEN 
+    		(MONTH(cdp.last_frame_date_of_service) = 3
+    		OR MONTH(cdp.last_frame_date_of_service) = 4
+    		OR MONTH(cdp.last_frame_date_of_service) = 5
+    		OR MONTH(cdp.last_lens_date_of_service) = 3
+    		OR MONTH(cdp.last_lens_date_of_service) = 4
+    		OR MONTH(cdp.last_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+    		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+    		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+    	AND last_claim_oon_indicator = 'N'
+	    THEN 'INN'
+			
+		ELSE 'NOC'
+		END AS email_tag
+		
+               , CASE
+		WHEN
+		(cd.C_Client_ID1 = '30098268' OR cdp.vision_savings_pass_indicator = 'Y') 
+		AND vwzip.zip IS NOT NULL then
+		'VC_SPVW_T2_Gla'
+
+		WHEN
+		(cd.C_Client_ID1 = '30098268' OR cdp.vision_savings_pass_indicator = 'Y') 
+		AND vwzip.zip IS NULL then
+		'VC_SP_T2_Gla'
+
+		WHEN
+		cd.C_Client_ID1 = '12297318' 
+		AND vwzip.zip IS NOT NULL then
+		'VC_FedVW_T2_Standard'
+
+		WHEN
+		cd.C_Client_ID1 = '12297318' then
+		'VC_Fed_T2_Standard'
+
+		WHEN
+		cd.C_Client_ID1 = '12297317' 
+		AND vwzip.zip IS NOT NULL then
+		'VC_FedVW_T2_High'
+
+		WHEN
+		cd.C_Client_ID1 = '12297317' then
+		'VC_Fed_T2_High'
+
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'GUARDIAN LIFE INSURANCE' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y' then
+		'VC_Guardian_T2_OON_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'GUARDIAN LIFE INSURANCE' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NOT NULL then
+		'VC_Guardian_VW_T2_OON_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'GUARDIAN LIFE INSURANCE' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NULL then
+		'VC_Guardian_T2_OON_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'GUARDIAN LIFE INSURANCE' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' then
+		'VC_Guardian_T2_INN_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'GUARDIAN LIFE INSURANCE' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y' then
+		'VC_Guardian_T2_OON_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'GUARDIAN LIFE INSURANCE' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND 
+		cdp.date_of_birth <= DATEADD(YEAR, -55, GETDATE()) then
+		'VC_Guardian_T2_INN_Ret'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'GUARDIAN LIFE INSURANCE' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NOT NULL then
+		'VC_Guardian_VW_T2_INN_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'GUARDIAN LIFE INSURANCE' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NULL then
+		'VC_Guardian_T2_INN_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'GUARDIAN LIFE INSURANCE' 
+		AND (cdp.next_exam_eligible_date IS NOT NULL 
+		AND cdp.client_primary_benefit_type <> 'Exam Only') then
+		'VC_Guardian_T2_EO_Gla'
+
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AMERITAS LIFE & DENTAL' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y' then
+		'VC_Ameritas_T2_OON_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AMERITAS LIFE & DENTAL' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NOT NULL then
+		'VC_Ameritas_VW_T2_OON_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AMERITAS LIFE & DENTAL' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NULL then
+		'VC_Ameritas_T2_OON_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AMERITAS LIFE & DENTAL' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' then
+		'VC_Ameritas_T2_INN_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AMERITAS LIFE & DENTAL' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND 
+		cdp.date_of_birth <= DATEADD(YEAR, -55, GETDATE()) then
+		'VC_Ameritas_T2_INN_Ret'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AMERITAS LIFE & DENTAL' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NOT NULL then
+		'VC_Ameritas_VW_T2_INN_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AMERITAS LIFE & DENTAL' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NULL then
+		'VC_Ameritas_T2_INN_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AMERITAS LIFE & DENTAL' 
+		AND (cdp.next_exam_eligible_date IS NOT NULL 
+		AND cdp.client_primary_benefit_type <> 'Exam Only') then
+		'VC_Ameritas_T2_EO_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AMERITAS LIFE & DENTAL'  
+		AND vwzip.zip IS NOT NULL then
+		'VC_Ameritas_VW_T2_NOC_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AMERITAS LIFE & DENTAL'  then
+		'VC_Ameritas_T2_NOC_Gla'
+
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AXA Equitable' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y' then
+		'VC_Equitable_T2_OON_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AXA Equitable' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NOT NULL then
+		'VC_Equitable_VW_T2_OON_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AXA Equitable' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NULL then
+		'VC_Equitable_T2_OON_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AXA Equitable' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' then
+		'VC_Equitable_T2_INN_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AXA Equitable' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND 
+		cdp.date_of_birth <= DATEADD(YEAR, -55, GETDATE()) then
+		'VC_Equitable_T2_INN_Ret'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AXA Equitable' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NOT NULL then
+		'VC_Equitable_VW_T2_INN_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AXA Equitable' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NULL then
+		'VC_Equitable_T2_INN_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AXA Equitable' 
+		AND (cdp.next_exam_eligible_date IS NOT NULL 
+		AND cdp.client_primary_benefit_type <> 'Exam Only') then
+		'VC_Equitable_T2_EO_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AXA Equitable'  
+		AND vwzip.zip IS NOT NULL then
+		'VC_Equitable_VW_T2_NOC_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'AXA Equitable'  then
+		'VC_Equitable_T2_NOC_Gla'
+
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'KANSAS CITY LIFE INSURANCE COM' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y' then
+		'VC_KCL_T2_OON_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'KANSAS CITY LIFE INSURANCE COM' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NOT NULL then
+		'VC_KCL_VW_T2_OON_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'KANSAS CITY LIFE INSURANCE COM' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NULL then
+		'VC_KCL_T2_OON_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'KANSAS CITY LIFE INSURANCE COM' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' then
+		'VC_KCL_T2_INN_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'KANSAS CITY LIFE INSURANCE COM' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND 
+		cdp.date_of_birth <= DATEADD(YEAR, -55, GETDATE()) then
+		'VC_KCL_T2_INN_Ret'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'KANSAS CITY LIFE INSURANCE COM' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NOT NULL then
+		'VC_KCL_VW_T2_INN_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'KANSAS CITY LIFE INSURANCE COM' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NULL then
+		'VC_KCL_T2_INN_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'KANSAS CITY LIFE INSURANCE COM' 
+		AND (cdp.next_exam_eligible_date IS NOT NULL 
+		AND cdp.client_primary_benefit_type <> 'Exam Only') then
+		'VC_KCL_T2_EO_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'KANSAS CITY LIFE INSURANCE COM'  
+		AND vwzip.zip IS NOT NULL then
+		'VC_KCL_VW_T2_NOC_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'KANSAS CITY LIFE INSURANCE COM'  then
+		'VC_KCL_T2_NOC_Gla'
+
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'ASSURANT EMPLOYEE BENEFITS' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y' then
+		'VC_SunLife_T2_OON_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'ASSURANT EMPLOYEE BENEFITS' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NOT NULL then
+		'VC_SunLife_VW_T2_OON_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'ASSURANT EMPLOYEE BENEFITS' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NULL then
+		'VC_SunLife_T2_OON_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'ASSURANT EMPLOYEE BENEFITS' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' then
+		'VC_SunLife_T2_INN_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'ASSURANT EMPLOYEE BENEFITS' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND 
+		cdp.date_of_birth <= DATEADD(YEAR, -55, GETDATE()) then
+		'VC_SunLife_T2_INN_Ret'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'ASSURANT EMPLOYEE BENEFITS' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NOT NULL then
+		'VC_SunLife_VW_T2_INN_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'ASSURANT EMPLOYEE BENEFITS' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NULL then
+		'VC_SunLife_T2_INN_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'ASSURANT EMPLOYEE BENEFITS' 
+		AND (cdp.next_exam_eligible_date IS NOT NULL 
+		AND cdp.client_primary_benefit_type <> 'Exam Only') then
+		'VC_SunLife_T2_EO_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'ASSURANT EMPLOYEE BENEFITS'  
+		AND vwzip.zip IS NOT NULL then
+		'VC_SunLife_VW_T2_NOC_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'ASSURANT EMPLOYEE BENEFITS'  then
+		'VC_SunLife_T2_NOC_Gla'
+
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'PROFESSIONAL CLAIMS MGT' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y' then
+		'VC_AultCare_T2_OON_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'PROFESSIONAL CLAIMS MGT' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NOT NULL then
+		'VC_AultCare_VW_T2_OON_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'PROFESSIONAL CLAIMS MGT' 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NULL then
+		'VC_AultCare_T2_OON_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'PROFESSIONAL CLAIMS MGT' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' then
+		'VC_AultCare_T2_INN_Con'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'PROFESSIONAL CLAIMS MGT' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND 
+		cdp.date_of_birth <= DATEADD(YEAR, -55, GETDATE()) then
+		'VC_AultCare_T2_INN_Ret'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'PROFESSIONAL CLAIMS MGT' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NOT NULL then
+		'VC_AultCare_VW_T2_INN_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'PROFESSIONAL CLAIMS MGT' 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NULL then
+		'VC_AultCare_T2_INN_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'PROFESSIONAL CLAIMS MGT' 
+		AND (cdp.next_exam_eligible_date IS NOT NULL 
+		AND cdp.client_primary_benefit_type <> 'Exam Only') then
+		'VC_AultCare_T2_EO_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'PROFESSIONAL CLAIMS MGT'  
+		AND vwzip.zip IS NOT NULL then
+		'VC_AultCare_VW_T2_NOC_Gla'
+
+		WHEN
+		cd.C_Strategic_Alliance_Code1 = 'PROFESSIONAL CLAIMS MGT'  then
+		'VC_AultCare_T2_NOC_Gla'
+
+
+		WHEN
+		vwzip.zip IS NOT NULL 
+		AND 
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NOT NULL then
+		'VC_VW_T2_OON_Gla'
+
+		WHEN
+		vwzip.zip IS NOT NULL 
+		AND (MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NOT NULL then
+		'VC_VW_T2_INN_Gla'
+
+		WHEN
+		vwzip.zip IS NOT NULL 
+		AND (cdp.next_exam_eligible_date IS NOT NULL 
+		AND cdp.client_primary_benefit_type <> 'Exam Only') then
+		'VC_Gen_T2_EO_Gla'
+
+		WHEN
+		vwzip.zip IS NULL then
+		'VC_VW_T2_NOC_Gla'
+
+
+		WHEN
+		vwzip.zip IS NOT NULL 
+		AND cdp.vision_savings_pass_indicator = '1' then
+		'VC_SPVW_T2_Gla'
+
+		WHEN
+		cdp.vision_savings_pass_indicator = '1' then
+		'VC_SP_T2_Gla'
+
+		WHEN
+
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt > 0  then
+		'VC_Gen_T2_OON_Con'
+
+		WHEN
+
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'Y'
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND vwzip.zip IS NULL then
+		'VC_Gen_T2_OON_Gla'
+
+		WHEN
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N'
+		AND cdp.last_4_yr_contact_lens_claim_cnt > 0  then
+		'VC_Gen_T2_INN_Con'
+
+		WHEN
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0 
+		AND cdp.date_of_birth <= DATEADD(YEAR, -55, GETDATE()) then
+		'VC_Gen_T2_INN_Ret'
+
+		WHEN
+		(MONTH(cdp.last_frame_date_of_service) = 3
+		OR MONTH(cdp.last_frame_date_of_service) = 4
+		OR MONTH(cdp.last_frame_date_of_service) = 5
+		OR MONTH(cdp.last_lens_date_of_service) = 3
+		OR MONTH(cdp.last_lens_date_of_service) = 4
+		OR MONTH(cdp.last_lens_date_of_service) = 5
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 3
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 4
+		OR MONTH(cdp.last_contact_lens_date_of_service) = 5
+    		OR MONTH(cdp.last_claim_date_of_service) = 3
+    		OR MONTH(cdp.last_claim_date_of_service) = 4
+    		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		AND cdp.last_claim_oon_indicator = 'N' 
+		AND cdp.last_4_yr_contact_lens_claim_cnt = 0  
+		AND vwzip.zip IS NULL then
+		'VC_Gen_T2_INN_Gla'
+
+		WHEN
+		(cdp.next_exam_eligible_date IS NOT NULL 
+		AND cdp.client_primary_benefit_type <> 'Exam Only') then
+		'VC_Gen_T2_EO_Gla'
+
+		WHEN
+		vwzip.zip IS NOT NULL then
+		'VC_VW_T2_NOC_Gla'
+
+		  else
+		'VC_Gen_T2_NOC_Gla'
+		END AS version_id 
+	, pref.Opt_In_VC_Benefits
+	, mp.Benefits_Optin 
+	, cd.C_Email_Source_Code1 as email_source
+	, cdp.last_frame_date_of_service
+	, cdp.last_lens_date_of_service
+	, cdp.last_contact_lens_date_of_service
+	, cdp.next_exam_eligible_date
+    , cdp.last_claim_date_of_service
+	, cdp.client_primary_benefit_type
+	, cdp.last_4_yr_contact_lens_claim_cnt
+	, cdp.last_claim_oon_indicator
+	, vwzip.zip as vwzip
+	, ROW_NUMBER() OVER(PARTITION BY cd.C_EmailAddress ORDER BY pref.primary_individual_identifier ASC) AS RowNum
+	
+	FROM [Data_Consumer_Load] cd
+	INNER JOIN [CDP_GR_Individual_Preferences] pref
+	ON cd.C_EmailAddress  = pref.email_address
+	INNER JOIN [Data_Consumer_ActiveEmails] a
+	ON cd.C_EmailAddress = a.EmailAddress
+	INNER JOIN [Eloqua_PrimaryEmails] p
+	ON cd.C_EmailAddress = p.EmailAddress
+	LEFT JOIN [VC_Subscription_Form_Page_Prod] mp
+	ON cd.C_EmailAddress = mp.[Email_Address]
+	LEFT JOIN CDP_GR_Individual cdp
+	ON cd.C_EmailAddress = cdp.email_address
+	LEFT JOIN [Ex_VC_VIP] vip
+	ON cd.C_EmailAddress = vip.email_address
+	LEFT JOIN [Ex_VC_EFF_No_Promos] np
+	ON cd.C_Client_ID1 = np.ClientID
+        LEFT JOIN [VW_Zips] vwzip
+        ON cd.C_Zip_Postal = vwzip.zip
+	
+	
+        
+/*Board Member BlackList Mailing Address Excludes*/
+LEFT JOIN [Ex_VC_BoardBlacklist] bbe
+ON cdp.email_address = bbe.email_address
+
+/*exclude sent EO in last 45 days*/
+	LEFT JOIN [VC_T2_EO_Sent_Last45Days] eo
+	ON  cd.C_EmailAddress = eo.email_address
+	
+	
+	WHERE
+	(
+	/*cd.C_Email_Source_Code1 = 'M'
+	OR */
+	cd.C_Email_Source_Code1 = 'P'
+	/*OR cd.C_Email_Source_Code1 = 'R'
+	OR cd.C_Email_Source_Code1 = 'S'*/
+	)
+	
+	
+	AND
+	eo.email_address IS NULL
+	
+    AND
+	bbe.email_address IS NULL
+	
+	AND
+	np.ClientID IS NULL
+	
+	AND
+	vip.email_address IS NULL
+	
+	AND
+    	(cdp.next_frame_eligible_date IS NULL
+    	OR
+    	cdp.next_lens_eligible_date IS NULL)
+	AND
+	
+	(
+		(MONTH(cdp.last_claim_date_of_service) = 3
+		OR MONTH(cdp.last_claim_date_of_service) = 4
+		OR MONTH(cdp.last_claim_date_of_service) = 5)
+		OR
+		(last_claim_date_of_service IS NULL)
+	)
+	
+	
+	AND
+	(pref.Opt_In_VC_Benefits = '1'
+	OR
+	mp.Benefits_Optin = '1')
+	
+	
+	/*-------------Excludes--------------*/
+    AND
+    cd.C_Strategic_Business_Unit1 = 'S. Alliance/Private Exchanges'
+	
+	
+	AND NOT
+		(cd.C_Client_ID1 = '12297317'
+		OR
+		cd.C_Client_ID1 = '12297318')	
+	
+	AND
+	
+		( /*-----Only pull in M P S R, NOT DNC M*/
+			( /*-----SA */
+				(cd.C_Strategic_Alliance_Code1 = 'AMERITAS LIFE & DENTAL'
+				OR cd.C_Strategic_Alliance_Code1 = 'KANSAS CITY LIFE INSURANCE COM'
+				OR cd.C_Strategic_Alliance_Code1 = 'AXA EQUITABLE'
+				OR cd.C_Strategic_Alliance_Code1 = 'ASSURANT EMPLOYEE BENEFITS'
+				OR cd.C_Strategic_Alliance_Code1 = 'PROFESSIONAL CLAIMS MGT')
+			AND
+				(
+				cd.C_Email_Source_Code1 = 'P'
+				OR
+				cd.C_Email_Source_Code1 = 'S'
+				OR
+				cd.C_Email_Source_Code1 = 'R'
+				OR
+				cd.C_Email_Source_Code1 = 'M'
+				)
+			)
+			OR
+			( /*-----SA */
+				cd.C_Strategic_Alliance_Code1 = 'GUARDIAN LIFE INSURANCE'
+				AND
+				cd.C_Email_Source_Code1 = 'P'
+				AND
+					(cdp.last_frame_date_of_service IS NOT NULL
+					OR
+					cdp.last_lens_date_of_service IS NOT NULL
+					OR
+					cdp.last_contact_lens_date_of_service IS NOT NULL)
+			)
+		)
+	
+	
+	AND 
+	NOT EXISTS 
+	(SELECT gopt.client_id 
+	FROM [Ex_VC_Global_Client_Opt_Out] gopt
+	WHERE  cd.C_Client_ID1 = gopt.client_id)
+	
+	
+	AND  
+	NOT EXISTS 
+	(SELECT eff.ClientID 
+	FROM [Ex_VC_EFF_No_Promos] eff
+	WHERE  cd.C_Client_ID1 = eff.ClientID)
+	
+	
+	AND  
+	NOT EXISTS 
+	(SELECT effc.client_id  
+	FROM [EFF_ClientIDs] effc
+	WHERE  cd.C_Client_ID1 = effc.client_id )
+	
+	
+	AND  
+	NOT EXISTS 
+	(SELECT term.client_id
+	FROM [Ex_VC_Future_Terming_Clients] term
+	WHERE  cd.C_Client_ID1 = term.client_id)
+	
+	
+	AND 
+	NOT EXISTS 
+	(SELECT email_address 
+	FROM [CDP_GR_Individual_Preferences] pref
+	WHERE  cd.C_EmailAddress = pref.email_address
+	AND pref.Opt_In_VC_Benefits = 0)
+	
+	
+	AND 
+	( /*-----MP Opt Out*/
+	NOT EXISTS 
+	(SELECT mp.Email_Address
+	FROM [VC_Subscription_Form_Page_Prod] mp
+	WHERE  cd.C_EmailAddress = mp.Email_Address
+	AND Benefits_Optin = 0)
+	)
