@@ -1,0 +1,72 @@
+SELECT
+v2.email_address
+,v2.primary_individual_identifier
+,v2.state
+,v2.zip
+,v2.class_id
+,v2.vision_savings_pass_indicator
+,v2.strategic_alliance_code
+,v2.sbu
+,v2.client_id
+,v2.date_of_birth
+,v2.email_tag
+, v2.version_id
+,v2.SFMCClaimMonth09
+,v2.SFMCClaimMonth11
+,v2.SFMCClaimOON
+,v2.SFMCClaimType
+, v2.Opt_In_VC_Benefits
+, v2.Benefits_Optin 
+, v2.email_source
+, v2.last_frame_date_of_service
+, v2.last_lens_date_of_service
+, v2.last_contact_lens_date_of_service
+, v2.next_exam_eligible_date
+, v2.client_primary_benefit_type
+, v2.last_claim_date_of_service
+
+FROM 
+   (SELECT
+	st.email_address
+	,st.primary_individual_identifier
+	,st.state
+	,st.zip
+	,st.class_id
+	,st.vision_savings_pass_indicator
+	,st.strategic_alliance_code
+	,st.sbu
+	,st.client_id
+	,st.date_of_birth
+	,st.email_tag
+	,st.version_id
+	,st.SFMCClaimMonth09
+	,st.SFMCClaimMonth11
+	,st.SFMCClaimOON
+	,st.SFMCClaimType
+	,st.Opt_In_VC_Benefits
+	,st.Benefits_Optin 
+	,st.email_source
+	,st.last_frame_date_of_service
+	,st.last_lens_date_of_service
+	,st.last_contact_lens_date_of_service
+    ,st.last_claim_date_of_service
+	,st.next_exam_eligible_date
+	,st.client_primary_benefit_type
+	,ROW_NUMBER() OVER(PARTITION BY st.email_address ORDER BY st.primary_individual_identifier ASC) AS RowNum
+	
+	FROM [VC_SA_T2_EntryV2_Staging] st
+ ) v2
+   
+WHERE
+v2.RowNum = 1
+
+AND
+NOT EXISTS 
+(SELECT SubscriberKey 
+FROM [_bounce] b
+WHERE  v2.primary_individual_identifier = b.SubscriberKey
+AND 
+    (b.BOUNCECATEGORY = 'Hard bounce'
+    OR b.BOUNCECATEGORY = 'Block bounce'
+    )
+)
